@@ -1,0 +1,227 @@
+--- 
+title: "Gantt Prueba de Escritura"
+#author: "Álvaro Otaegui"
+format: dashboard
+execute:
+  echo: false
+--- 
+
+```{r}
+# Setting
+library(tidyverse)
+library(dplyr)
+library(readxl)
+library(plotly)
+## Carga de datos
+df <- readxl::read_xlsx("fechas.xlsx")
+df <- df |>
+    mutate(cap_inicio = as.Date(capacitacion_inicio, format = "%Y/%m/%d")) |>
+    mutate(cap_termino = as.Date(capacitacion_termino, format = "%Y/%m/%d")) |>
+    mutate(cap_duracion = cap_termino - cap_inicio) |>
+    mutate(mb_inicio = as.Date(mb_inicio, format = "%Y/%m/%d")) |>
+    mutate(mb_termino = as.Date(mb_termino, format = "%Y/%m/%d")) |>
+    mutate(mb_duracion = mb_termino - mb_inicio) |>
+    mutate(cor_inicio = as.Date(correccion_inicio, format = "%Y/%m/%d")) |>
+    mutate(cor_termino = as.Date(correccion_termino, format = "%Y/%m/%d")) |>
+    mutate(cor_duracion = cor_termino - cor_inicio) |>
+    filter(pais != "Ecuador (Costa Galápagos)")
+
+```
+
+
+# Capacitación
+```{r}
+fig <- plot_ly()
+for(i in 1:(nrow(df) - 1)){
+ fig <- add_trace(fig,
+                 x = c(df$cap_inicio[i], df$cap_inicio[i] + df$cap_duracion[i]),  # x0, x1
+                 y = c(i, i),  # y0, y1
+                 mode = "lines",
+                 line = list(color = df$color[i], width = 20),
+                 showlegend = F,
+                 hoverinfo = "text",
+
+                 # Create custom hover text
+
+                 text = paste("País: ", df$pais[i], "<br>",
+                              "Días: ", df$cap_duracion[i], "days<br>",
+                              "Fecha de término: ", df$cap_termino[i]),
+
+                  evaluate = T  # needed to avoid lazy loading
+  )
+}
+
+fecha_actual <- Sys.Date()
+fig <- add_trace(fig,
+                x = c(fecha_actual, fecha_actual),
+                y = c(0, nrow(df)),
+                mode = "lines",
+                line = list(color = "red", width = 2, dash = "dash"),
+                showlegend = FALSE,
+                hoverinfo = "text",
+                text = paste("Fecha actual:", format(fecha_actual, "%d/%m/%Y")),
+                evaluate = TRUE
+)
+
+fig <- layout(fig, 
+              xaxis = list(
+                title = "Fecha",
+                type = "date",
+                tickformat = "%d/%m/%Y"
+              ),
+              yaxis = list(
+                tickmode = "array", 
+                tickvals = 1:nrow(df), 
+                ticktext = unique(df$pais),
+                domain = c(0, 0.9)
+              ),
+              shapes = list(
+                list(
+                  type = "line",
+                  x0 = fecha_actual,
+                  x1 = fecha_actual,
+                  y0 = 0,
+                  y1 = 1,
+                  yref = "paper",  # Hace que y vaya de 0 a 1 (todo el gráfico)
+                  line = list(
+                    color = "red",
+                    width = 2,
+                    dash = "dash"
+                  ),
+                  editable = TRUE,  # Hace la línea arrastrable
+                  name = "Fecha actual"
+                )
+              ))
+fig
+```
+
+# Marcha Blanca
+```{r}
+fig <- plot_ly()
+for(i in 1:(nrow(df) - 1)){
+ fig <- add_trace(fig,
+                 x = c(df$mb_inicio[i], df$mb_inicio[i] + df$mb_duracion[i]),  # x0, x1
+                 y = c(i, i),  # y0, y1
+                 mode = "lines",
+                 line = list(color = df$color[i], width = 20),
+                 showlegend = F,
+                 hoverinfo = "text",
+
+                 # Create custom hover text
+
+                 text = paste("País: ", df$pais[i], "<br>",
+                              "Días: ", df$mb_duracion[i], "days<br>",
+                              "Fecha de término: ", df$mb_termino[i]),
+
+                  evaluate = T  # needed to avoid lazy loading
+  )
+}
+
+fecha_actual <- Sys.Date()
+fig <- add_trace(fig,
+                x = c(fecha_actual, fecha_actual),
+                y = c(0, nrow(df)),
+                mode = "lines",
+                line = list(color = "red", width = 2, dash = "dash"),
+                showlegend = FALSE,
+                hoverinfo = "text",
+                text = paste("Fecha actual:", format(fecha_actual, "%d/%m/%Y")),
+                evaluate = TRUE
+)
+
+fig <- layout(fig, 
+              xaxis = list(
+                title = "Fecha",
+                type = "date",
+                tickformat = "%d/%m/%Y"
+              ),
+              yaxis = list(
+                tickmode = "array", 
+                tickvals = 1:nrow(df), 
+                ticktext = unique(df$pais),
+                domain = c(0, 0.9)
+              ),
+              shapes = list(
+                list(
+                  type = "line",
+                  x0 = fecha_actual,
+                  x1 = fecha_actual,
+                  y0 = 0,
+                  y1 = 1,
+                  yref = "paper",  # Hace que y vaya de 0 a 1 (todo el gráfico)
+                  line = list(
+                    color = "red",
+                    width = 2,
+                    dash = "dash"
+                  ),
+                  editable = TRUE,  # Hace la línea arrastrable
+                  name = "Fecha actual"
+                )
+              ))
+fig
+```
+# Corrección Prueba de Escritura
+```{r}
+fig <- plot_ly()
+for(i in 1:(nrow(df) - 1)){
+ fig <- add_trace(fig,
+                 x = c(df$cor_inicio[i], df$cor_inicio[i] + df$cor_duracion[i]),  # x0, x1
+                 y = c(i, i),  # y0, y1
+                 mode = "lines",
+                 line = list(color = df$color[i], width = 20),
+                 showlegend = F,
+                 hoverinfo = "text",
+
+                 # Create custom hover text
+
+                 text = paste("País: ", df$pais[i], "<br>",
+                              "Días: ", df$cor_duracion[i], "days<br>",
+                              "Fecha de término: ", df$cor_termino[i]),
+
+                  evaluate = T  # needed to avoid lazy loading
+  )
+}
+
+fecha_actual <- Sys.Date()
+fig <- add_trace(fig,
+                x = c(fecha_actual, fecha_actual),
+                y = c(0, nrow(df)),
+                mode = "lines",
+                line = list(color = "red", width = 2, dash = "dash"),
+                showlegend = FALSE,
+                hoverinfo = "text",
+                text = paste("Fecha actual:", format(fecha_actual, "%d/%m/%Y")),
+                evaluate = TRUE
+)
+
+fig <- layout(fig, 
+              xaxis = list(
+                title = "Fecha",
+                type = "date",
+                tickformat = "%d/%m/%Y"
+              ),
+              yaxis = list(
+                tickmode = "array", 
+                tickvals = 1:nrow(df), 
+                ticktext = unique(df$pais),
+                domain = c(0, 0.9)
+              ),
+              shapes = list(
+                list(
+                  type = "line",
+                  x0 = fecha_actual,
+                  x1 = fecha_actual,
+                  y0 = 0,
+                  y1 = 1,
+                  yref = "paper",  # Hace que y vaya de 0 a 1 (todo el gráfico)
+                  line = list(
+                    color = "red",
+                    width = 2,
+                    dash = "dash"
+                  ),
+                  editable = TRUE,  # Hace la línea arrastrable
+                  name = "Fecha actual"
+                )
+              ))
+fig
+```
